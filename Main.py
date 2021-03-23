@@ -7,14 +7,17 @@ web = Browser()
 exitcode = 0
 print("going to sleep")
 web.go_to('google.com')
+soldOut = True
+searchItem = "Nest Mini (2nd Generation) Smart Speaker with Google Assistant - Chalk"
+ #"Microsoft - Xbox Series X 1TB Console - Black"
 
 #setting up menu to grab cookies and help with prototyping
 
 while exitcode == 0:
     print("What would you like to do")
     print ('import cookies: 1 /n export cookies: 2 /n run loop: 3 /n quit: quit ')
-    a = '3'
-    # a = input("what would you like to do? ")
+    # a = '3'
+    a = input("what would you like to do? ")
     if a == '1':
         print("Importing Cookies!")
         cookies = pickle.load(open("cookies.pkl", "rb"))
@@ -32,6 +35,7 @@ while exitcode == 0:
     elif a == '3':
     
     #auto importing cookies for fast prototyping 
+      
         print("Importing Cookies!")
         cookies = pickle.load(open("cookies.pkl", "rb"))
         for cookie in cookies:
@@ -43,13 +47,21 @@ while exitcode == 0:
         print("Running Bot! Time: " + str(asctime()))
         web.go_to('bestbuy.com')
         web.press(web.Key.ESCAPE)
-        web.type('Microsoft - Xbox Series X 1TB Console - Black' ,id='gh-serch-input')
+        web.type( searchItem ,id='gh-serch-input')
         web.press(web.Key.ENTER)
+        web.click(text=searchItem)
         # we are now just  waiting for one to be in stock
         #so we will read the html page to see if some are in stock
-        page = str(web.get_page_source())
-        
-        exitcode += 1
+        while soldOut:
+            
+            soldOut = web.exists(text="Sold Out",tag="button",classname="btn-disable")
+            print("Are they sold out? "+ str(soldOut) )
+            sleep(5)
+            web.refresh()
+        # xbox is in stock now 
+        print(searchItem + " is in stock! Buying!")
+        #web.click()
+        #exitcode += 1
         
 
 
@@ -62,7 +74,7 @@ while exitcode == 0:
 #web.click('Sign in')
 #web.type('mymail@gmail.com' , into='Email')
 #web.click('NEXT' , tag='span')
-web.type('mypassword' , into='Password' , id='passwordFieldId')
+#web.type('mypassword' , into='Password' , id='passwordFieldId')
 #web.click('NEXT' , tag='span') # you are logged in . woohoooo
 exitcode = 1
 web.quit()

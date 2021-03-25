@@ -5,8 +5,8 @@
 
 Feature list:
 
-menu to create / import cookies
-run main buying script
+menu to create / import cookies /run main buying script
+Added Discord webhook to notify of events
 
 
 Maybe Feature:

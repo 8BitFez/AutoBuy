@@ -5,8 +5,14 @@ from time import asctime
 from discord_webhook import DiscordWebhook
 
 
-webhookUrl = "https://discordapp.com/api/webhooks/824504647430832169/4qtYraSAT_M71sh7eI9JnsE1MZKErkRaedtMf_9DILHql0VfhE_VzxaBQ7DJUVXDu-KR"
-webhookUrlLogs = "https://discordapp.com/api/webhooks/824523624576057355/deKNARiRzg31PDRe9aUsFcxr-UEs9Y810-tv98OlCEXfXVwTy5whGTQzwKOKmE354Wck"
+webhookUrl = "https://discordapp.com/api/webhooks/824699401712566325/DkxRtEY6IfW1AFStyQf2jLUbfzNDHmLf3JgY240L9-gKVx234ddtK7T1Eq5gD6I0ptbj"
+webhookUrlLogs = "https://discordapp.com/api/webhooks/824699054188920914/di3sjWFrLNAhxw0YGTXtbiKXPXPQALCqCZ5sOqdbd8W6etp8yz-O5EA_ZmRWx10Q092U"
+
+def sendimage(path,msg):
+    webhook = DiscordWebhook(url= webhookUrl, username= msg)
+    with open(path, "rb") as f:
+        webhook.add_file(file=f.read(), filename='example.jpg')
+    response = webhook.execute()
 
 def send(msg):
     webhook = DiscordWebhook(url= webhookUrl, content= msg)
@@ -90,8 +96,10 @@ while exitcode == 0:
             if pagesource.find(findElement) < 0:
                 soldOut = False
 # the item is in stock now 
-        send(searchItem + " is in stock! Buying!")
-        web.save_screenshot("in_stock.png")        
+
+        send(searchItem + " is in stock! Buying! @everyone")
+        web.save_screenshot("in_stock.png")
+        sendimage("in_stock.png","Item is in Stock!")        
         web.click(text="add to cart",classname="add-to-cart")
         web.go_to("https://www.gamestop.com/cart/")
         sleep(2)
@@ -106,9 +114,11 @@ while exitcode == 0:
         web.click("Continue To Order Review",tag="button")
         sleep(2)
         send("Placing Order")
-#Uncomment next line to actualy purches
+#Uncomment next line to actualy buy items
         #web.click("Place Order" ,tag="button")
         web.save_screenshot("Order_placed.png")
+        send("@everyone "+searchItem+"has been bought!")
+        sendimage("Order_placed.png","Order was placed! check account!")
         
         exitcode += 1
         

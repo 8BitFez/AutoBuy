@@ -6,19 +6,26 @@ from discord_webhook import DiscordWebhook
 
 
 webhookUrl = "https://discordapp.com/api/webhooks/824504647430832169/4qtYraSAT_M71sh7eI9JnsE1MZKErkRaedtMf_9DILHql0VfhE_VzxaBQ7DJUVXDu-KR"
+webhookUrlLogs = "https://discordapp.com/api/webhooks/824523624576057355/deKNARiRzg31PDRe9aUsFcxr-UEs9Y810-tv98OlCEXfXVwTy5whGTQzwKOKmE354Wck"
 
 def send(msg):
     webhook = DiscordWebhook(url= webhookUrl, content= msg)
+    response = webhook.execute()
+
+def log(msg):
+    webhook = DiscordWebhook(url= webhookUrlLogs, content= msg)
     response = webhook.execute()
 
 web = Browser()
 exitcode = 0
 print("Starting Up")
 
-searchItem = "Storage Expansion Card for Xbox Series X 1TB"
+searchItem = " Hornet In-ear Gaming Headphones"
 webstore = "www.gamestop.com"
 findElement = '<button class="add-to-cart btn btn-primary " data-pid="B224744V" data-gtmdata="{&quot;productInfo&quot;:{&quot;sku&quot;:&quot;B224744V&quot;,&quot;productID&quot;:&quot;B224744V&quot;,&quot;name&quot;:&quot;Xbox Series X&quot;,&quot;category&quot;:&quot;Video Games/Xbox Series X/Consoles&quot;,&quot;brand&quot;:&quot;&quot;,&quot;subGenre&quot;:&quot;&quot;,&quot;platform&quot;:&quot;&quot;,&quot;condition&quot;:&quot;New&quot;,&quot;variant&quot;:&quot;New&quot;,&quot;genre&quot;:&quot;&quot;,&quot;availability&quot;:&quot;Not Available&quot;,&quot;productType&quot;:&quot;bundle&quot;,&quot;zoneSource&quot;:&quot;PDP&quot;,&quot;tradeinProductName&quot;:&quot;&quot;,&quot;programName&quot;:&quot;&quot;,&quot;tradeinOpted&quot;:&quot;&quot;},&quot;price&quot;:{&quot;sellingPrice&quot;:&quot;499.99&quot;,&quot;basePrice&quot;:&quot;499.99&quot;,&quot;currency&quot;:&quot;USD&quot;}}" data-buttontext="Add to Cart" disabled="disabled">Not Available</button>'
 CVV = "167"
+password = "py8oRASzgYUtzi"
+
 #"Nest Mini (2nd Generation) Smart Speaker with Google Assistant - Chalk"
 #setting up menu to grab cookies and help with prototyping
 
@@ -29,8 +36,7 @@ soldOut = True
 while exitcode == 0:
     print("What would you like to do")
     print ('import cookies: 1 /n export cookies: 2 /n run loop: 3 /n quit: quit ')
-    a = '3'
-    #a = input("what would you like to do? ")
+    a = input("what would you like to do? ")
     if a == '1':
         print("Importing Cookies!")
         cookies = pickle.load(open("cookies.pkl", "rb"))
@@ -57,7 +63,7 @@ while exitcode == 0:
 
 #Starting Scripts for right just looping once
 
-        send("Running Bot! Time: " + str(asctime()))
+        log("Running Bot! Time: " + str(asctime()))
         web.go_to(webstore)
         web.press(web.Key.ESCAPE)
         web.type( searchItem , classname= 'search-field')
@@ -82,7 +88,7 @@ while exitcode == 0:
             web.refresh()
 
             if pagesource.find(findElement) < 0:
-                soldOut = True
+                soldOut = False
 # the item is in stock now 
         send(searchItem + " is in stock! Buying!")
         web.save_screenshot("in_stock.png")        
@@ -90,16 +96,17 @@ while exitcode == 0:
         web.go_to("https://www.gamestop.com/cart/")
         sleep(2)
         web.go_to("https://www.gamestop.com/checkout/login/")
-        input("halt")
         
         sleep(3)
-        web.type(email ,id="")
-        web.type(password ,id="")
+        web.type(password ,id="login-form-password")
+        web.click("Sign In",tag="button",classname="btn-primary")
+        sleep(2)
         web.click(text="Continue To Payment")
         web.type(CVV,id="saved-payment-security-code")
         web.click("Continue To Order Review",tag="button")
         sleep(2)
         send("Placing Order")
+#Uncomment next line to actualy purches
         #web.click("Place Order" ,tag="button")
         web.save_screenshot("Order_placed.png")
         

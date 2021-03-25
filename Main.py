@@ -2,17 +2,29 @@ import pickle
 from webbot import Browser
 from time import sleep
 from time import asctime
+from discord_webhook import DiscordWebhook
+
+
+webhookUrl = "https://discordapp.com/api/webhooks/824504647430832169/4qtYraSAT_M71sh7eI9JnsE1MZKErkRaedtMf_9DILHql0VfhE_VzxaBQ7DJUVXDu-KR"
+
+def send(msg):
+    webhook = DiscordWebhook(url= webhookUrl, content= msg)
+    response = webhook.execute()
 
 web = Browser()
 exitcode = 0
-print("going to sleep")
-web.go_to('google.com')
-soldOut = True
-searchItem = "Xbox Series X"
+print("Starting Up")
+
+searchItem = "Storage Expansion Card for Xbox Series X 1TB"
 webstore = "www.gamestop.com"
-#
+findElement = '<button class="add-to-cart btn btn-primary " data-pid="B224744V" data-gtmdata="{&quot;productInfo&quot;:{&quot;sku&quot;:&quot;B224744V&quot;,&quot;productID&quot;:&quot;B224744V&quot;,&quot;name&quot;:&quot;Xbox Series X&quot;,&quot;category&quot;:&quot;Video Games/Xbox Series X/Consoles&quot;,&quot;brand&quot;:&quot;&quot;,&quot;subGenre&quot;:&quot;&quot;,&quot;platform&quot;:&quot;&quot;,&quot;condition&quot;:&quot;New&quot;,&quot;variant&quot;:&quot;New&quot;,&quot;genre&quot;:&quot;&quot;,&quot;availability&quot;:&quot;Not Available&quot;,&quot;productType&quot;:&quot;bundle&quot;,&quot;zoneSource&quot;:&quot;PDP&quot;,&quot;tradeinProductName&quot;:&quot;&quot;,&quot;programName&quot;:&quot;&quot;,&quot;tradeinOpted&quot;:&quot;&quot;},&quot;price&quot;:{&quot;sellingPrice&quot;:&quot;499.99&quot;,&quot;basePrice&quot;:&quot;499.99&quot;,&quot;currency&quot;:&quot;USD&quot;}}" data-buttontext="Add to Cart" disabled="disabled">Not Available</button>'
+CVV = "167"
 #"Nest Mini (2nd Generation) Smart Speaker with Google Assistant - Chalk"
 #setting up menu to grab cookies and help with prototyping
+
+#start brower to import cookies
+web.go_to('google.com')
+soldOut = True
 
 while exitcode == 0:
     print("What would you like to do")
@@ -35,7 +47,7 @@ while exitcode == 0:
         exitcode += 1
     elif a == '3':
     
-    #auto importing cookies for fast prototyping 
+#auto importing cookies for fast prototyping 
       
         print("Importing Cookies!")
         cookies = pickle.load(open("cookies.pkl", "rb"))
@@ -43,42 +55,57 @@ while exitcode == 0:
             web.add_cookie(cookie)
         print("Cookies Imoported! Yummy!")
 
-    #Starting Scripts for right just looping once
+#Starting Scripts for right just looping once
 
-        print("Running Bot! Time: " + str(asctime()))
+        send("Running Bot! Time: " + str(asctime()))
         web.go_to(webstore)
         web.press(web.Key.ESCAPE)
         web.type( searchItem , classname= 'search-field')
         web.press(web.Key.ENTER)
         web.click(text=searchItem, loose_match=False)
-        # we are now just  waiting for one to be in stock
-        #so we will read the html page to see if some are in stock
+        pagesource = web.get_page_source()
+# we are now just  waiting for one to be in stock
+# so we will read the html page to see if some are in stock
+        
+        if pagesource.find(findElement) > 0:
+            soldOut = True
+        
+        else:
+            soldOut = False
+
+        print(str(asctime()) +" Are they sold out? "+ str(soldOut) )
+        
         while soldOut:
             
-            soldOut = web.exists(text="Sold Out",tag="button")
-            print("Are they sold out? "+ str(soldOut) )
+            print(str(asctime()) +" Are they sold out? "+ str(soldOut) )
             sleep(5)
             web.refresh()
 
-        # xbox is in stock now 
-        print(searchItem + " is in stock! Buying!")
-        g = input("halting!")
-        #web.click()
+            if pagesource.find(findElement) < 0:
+                soldOut = True
+# the item is in stock now 
+        send(searchItem + " is in stock! Buying!")
+        web.save_screenshot("in_stock.png")        
+        web.click(text="add to cart",classname="add-to-cart")
+        web.go_to("https://www.gamestop.com/cart/")
+        sleep(2)
+        web.go_to("https://www.gamestop.com/checkout/login/")
+        input("halt")
+        
+        sleep(3)
+        web.type(email ,id="")
+        web.type(password ,id="")
+        web.click(text="Continue To Payment")
+        web.type(CVV,id="saved-payment-security-code")
+        web.click("Continue To Order Review",tag="button")
+        sleep(2)
+        send("Placing Order")
+        #web.click("Place Order" ,tag="button")
+        web.save_screenshot("Order_placed.png")
+        
         exitcode += 1
         
 
-
-
-#Examples that i am learning from
-
-#web.type('hello its me')  # or web.press(web.Key.SHIFT + 'hello its me')
-#web.press(web.Key.ENTER)
-#web.go_back()
-#web.click('Sign in')
-#web.type('mymail@gmail.com' , into='Email')
-#web.click('NEXT' , tag='span')
-#web.type('mypassword' , into='Password' , id='passwordFieldId')
-#web.click('NEXT' , tag='span') # you are logged in . woohoooo
 exitcode = 1
 web.quit()
 print("End of Bot: Exit Code: "+ str(exitcode))
